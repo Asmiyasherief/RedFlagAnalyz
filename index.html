@@ -1,148 +1,229 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Red Flag Analyzer</title>
+
 <style>
-body{
-    margin:0;
-    font-family:Arial, sans-serif;
-    background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);
-    color:white;
-    text-align:center;
+body {
+  font-family: 'Arial', sans-serif;
+  background: linear-gradient(135deg, #1f1c2c, #928dab);
+  color: #fff;
+  margin: 0;
+  padding: 0;
 }
-.container{
-    width:90%;
-    max-width:600px;
-    margin:40px auto;
-    background:rgba(0,0,0,0.6);
-    padding:25px;
-    border-radius:15px;
-    box-shadow:0 0 20px rgba(255,0,0,0.4);
+header {
+  text-align: center;
+  padding: 40px 20px;
+  font-size: 2.5em;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 2px;
 }
-h1{
-    font-size:32px;
-    margin-bottom:10px;
+header img {
+  width: 80px;
+  vertical-align: middle;
+  margin-right: 15px;
 }
-select, textarea, button{
-    width:100%;
-    padding:10px;
-    margin-top:15px;
-    border-radius:8px;
-    border:none;
+main {
+  max-width: 900px;
+  margin: auto;
+  background: rgba(0,0,0,0.6);
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 0 15px rgba(255,255,255,0.2);
 }
-textarea{
-    height:120px;
-    resize:none;
+select, input[type=text], input[type=number], button, textarea {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0 20px;
+  border-radius: 8px;
+  border: none;
+  font-size: 1em;
 }
-button{
-    background:#ff004c;
-    color:white;
-    font-weight:bold;
-    cursor:pointer;
+button {
+  background: #ff3c3c;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
 }
-button:hover{
-    background:#ff1a66;
+button:hover {
+  background: #ff0000;
 }
-#result{
-    margin-top:20px;
-    padding:15px;
+#result {
+  margin-top: 20px;
+  padding: 20px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.05);
+}
+h2 { margin-top: 0; }
+label {
+  display:block;
+  margin-top:10px;
+}
+#traitsBox label {
+  display:block;
+  margin:5px 0;
 }
 </style>
 </head>
 
 <body>
 
-<div class="container">
-<h1>🚩 Red Flag Analyzer</h1>
+<header>
+  <img src="https://cdn-icons-png.flaticon.com/512/616/616408.png" alt="Red Flag Logo">
+  Red Flag Analyzer
+</header>
 
-<select id="relationshipType">
-<option value="relationship">Romantic Relationship</option>
-<option value="friendship">Friendship</option>
-<option value="situationship">Situationship</option>
-</select>
+<main>
 
-<textarea id="manualInput" placeholder="Describe the situation here..."></textarea>
+  <label for="context">Select Relationship Context:</label>
+  <select id="context">
+    <option value="friendship">Friendship</option>
+    <option value="romantic">Romantic</option>
+    <option value="work">Work</option>
+    <option value="other">Other</option>
+  </select>
 
-<button onclick="calculate()">Analyze</button>
+  <label for="inputType">Input Method:</label>
+  <select id="inputType">
+    <option value="">-- Select --</option>
+    <option value="manual">Manual Description</option>
+    <option value="traits">Select Traits</option>
+    <option value="text">Analyze Text</option>
+    <option value="auto">Auto Score</option>
+  </select>
 
-<div id="result"></div>
+  <textarea id="manualInput" placeholder="Type behavior manually..." style="display:none;"></textarea>
 
-</div>
+  <div id="traitsBox" style="display:none;">
+    <label><input type="checkbox" value="controlling"> Controlling</label>
+    <label><input type="checkbox" value="manipulative"> Manipulative</label>
+    <label><input type="checkbox" value="sexual intention"> Sexual Intention</label>
+    <label><input type="checkbox" value="backstabbing"> Backstabbing</label>
+    <label><input type="checkbox" value="block cheyyum"> Block Cheyyum</label>
+    <label><input type="checkbox" value="veruppu"> Veruppu</label>
+    <label><input type="checkbox" value="shalyam"> Shalyam</label>
+    <label><input type="checkbox" value="time illa,busy aan"> Time/Busy Excuse</label>
+    <label><input type="checkbox" value="overreact cheyyalle"> Overreacting</label>
+  </div>
+
+  <textarea id="textInput" placeholder="Paste chat/text here..." style="display:none;"></textarea>
+
+  <div id="autoBox" style="display:none;">
+    <label>Anger Level (1-10):</label>
+    <input type="number" id="anger" min="0" max="10">
+    <label>Number of Blocks/Interruptions:</label>
+    <input type="number" id="blocks" min="0" max="10">
+  </div>
+
+  <button onclick="calculate()">Analyze</button>
+
+  <div id="result"></div>
+
+</main>
 
 <script>
+const redFlagsDatabase = {
+    friendship: [
+        "njan angane thanne aanu","nee over aakunnu","athokke normal aanu",
+        "trust ille?","friends mathram aanu","phone nokkan pattilla","busy aayirunnu",
+        "scene undakkalle","nee change aayi","ellarum angane thanne",
+        "chumma paranjatha","ninne vendi alle cheythathu","nee enne deserve cheyyilla",
+        "mind cheyyanda","njan poyal ariyum","secret aayittu vekku",
+        "ohh athra valiya karyam onnum alla","luck undayirunnu","ninakku easy aanu",
+        "avan/avalode samsarikalle","njan illathe nee pokaruthu","enne kettu mathi",
+        "nee enne thanne choose cheyyanam","enikku vendi ithra polum cheyyan pattilla"
+    ],
+    romantic: [
+        "controlling","restricting freedom","manipulative","sexual intention","backstabbing",
+        "block cheyyum","veruppu","shalyam","time illa,busy aan","overreact cheyyalle",
+        "chumma paranjatha","ninne vendi alle cheythathu","nee enne deserve cheyyilla",
+        "njan poyal ariyum","secret aayittu vekku","ninta thantha","ninta mattavan"
+    ],
+    work: [
+        "manipulative","backstabbing","overreact cheyyalle","time illa,busy aan",
+        "secret aayittu vekku"
+    ],
+    other: [
+        "controlling","manipulative","block cheyyum","veruppu","shalyam"
+    ]
+};
 
-const redFlags = [
-
-/* General */
-"controlling",
-"restricting freedom",
-"manipulative",
-"sexual intention",
-"backstabbing",
-"block cheyyum",
-"veruppu",
-"shalyam",
-"time illa",
-"busy aan",
-"overreact cheyyalle",
-
-/* Malayalam Emotional Manipulation */
-"njan angane thanne aanu",
-"nee over aakunnu",
-"athokke normal aanu",
-"trust ille",
-"friends mathram aanu",
-"phone nokkan pattilla",
-"busy aayirunnu",
-"scene undakkalle",
-"nee change aayi",
-"ellarum angane thanne",
-
-/* Toxic Behaviour */
-"chumma paranjatha",
-"ninne vendi alle cheythathu",
-"nee enne deserve cheyyilla",
-"mind cheyyanda",
-"njan poyal ariyum",
-"secret aayittu vekku",
-
-/* Friendship specific */
-"ohh athra valiya karyam onnum alla",
-"luck undayirunnu",
-"ninakku easy aanu",
-"avanode samsarikalle",
-"avalode samsarikalle",
-"njan illathe nee pokaruthu",
-"enne kettu mathi",
-"nee enne thanne choose cheyyanam",
-"enikku vendi ithra polum cheyyan pattilla"
-
+const roastMessages = [
+    "Hmm... yikes, that's messy!",
+    "🚨 Someone needs a reality check!",
+    "Wow, big red flags waving here!",
+    "Alert! Toxic vibes detected!"
 ];
 
-function calculate(){
+const adviceByContext = {
+    friendship: "Watch out! Not all friends have your best interest. Consider boundaries.",
+    romantic: "Take a step back. Protect your emotional well-being.",
+    work: "Stay professional. Don't let toxic behaviors affect your performance.",
+    other: "Evaluate carefully and set boundaries as needed."
+};
 
-let input=document.getElementById("manualInput").value.toLowerCase();
-let detected=false;
+document.getElementById("inputType").addEventListener("change", function(){
+    document.getElementById("manualInput").style.display="none";
+    document.getElementById("traitsBox").style.display="none";
+    document.getElementById("textInput").style.display="none";
+    document.getElementById("autoBox").style.display="none";
 
-redFlags.forEach(flag=>{
-    if(input.includes(flag)){
-        detected=true;
-    }
+    if(this.value==="manual") document.getElementById("manualInput").style.display="block";
+    if(this.value==="traits") document.getElementById("traitsBox").style.display="block";
+    if(this.value==="text") document.getElementById("textInput").style.display="block";
+    if(this.value==="auto") document.getElementById("autoBox").style.display="block";
 });
 
-if(detected){
-    document.getElementById("result").innerHTML=
-    "<h2 style='color:red;'>🚩 RED FLAG DETECTED 🚩</h2>"+
-    "<p>Toxic or manipulative behaviour identified. Please reassess this relationship carefully.</p>";
-}
-else{
-    document.getElementById("result").innerHTML=
-    "<h2 style='color:lightgreen;'>No Major Red Flags Found</h2>"+
-    "<p>No serious toxic traits detected in the provided input.</p>";
-}
+function calculate() {
+    const type = document.getElementById("inputType").value;
+    const context = document.getElementById("context").value;
+    let detectedFlags = [];
+    let inputText = "";
 
-}
+    if(type==="manual")
+        inputText = document.getElementById("manualInput").value.toLowerCase();
 
+    if(type==="traits") {
+        document.querySelectorAll("#traitsBox input:checked").forEach(c=>{
+            inputText += " " + c.value;
+        });
+    }
+
+    if(type==="text")
+        inputText = document.getElementById("textInput").value.toLowerCase();
+
+    if(type==="auto") {
+        const anger = parseInt(document.getElementById("anger").value)||0;
+        const blocks = parseInt(document.getElementById("blocks").value)||0;
+        if(anger>3) detectedFlags.push("High Anger Level");
+        if(blocks>5) detectedFlags.push("High Blocking Behavior");
+    }
+
+    redFlagsDatabase[context].forEach(flag=>{
+        if(inputText.includes(flag)) detectedFlags.push(flag);
+    });
+
+    const topFlags = detectedFlags.slice(0,3);
+    const roast = roastMessages[Math.floor(Math.random()*roastMessages.length)];
+    const advice = adviceByContext[context];
+
+    let html = "";
+    if(detectedFlags.length>0){
+        html += `<h2 style='color:red;'>🚩 RED FLAG DETECTED 🚩</h2>`;
+        html += `<p>${roast}</p>`;
+        html += `<p><b>Top traits:</b> ${topFlags.join(", ")}</p>`;
+        html += `<p><b>Advice:</b> ${advice}</p>`;
+    } else {
+        html += `<h2 style='color:lightgreen;'>No Major Red Flags Found</h2>`;
+        html += `<p>Keep monitoring and maintain healthy boundaries.</p>`;
+    }
+
+    document.getElementById("result").innerHTML = html;
+}
 </script>
 
 </body>
