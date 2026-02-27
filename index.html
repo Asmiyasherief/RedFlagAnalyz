@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Red Flag Analyzer</title>
+<style>
+body{
+    margin:0;
+    font-family:Arial, sans-serif;
+    background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);
+    color:white;
+    text-align:center;
+}
+.container{
+    width:90%;
+    max-width:600px;
+    margin:40px auto;
+    background:rgba(0,0,0,0.6);
+    padding:25px;
+    border-radius:15px;
+    box-shadow:0 0 20px rgba(255,0,0,0.4);
+}
+h1{
+    font-size:32px;
+    margin-bottom:10px;
+}
+select, textarea, button{
+    width:100%;
+    padding:10px;
+    margin-top:15px;
+    border-radius:8px;
+    border:none;
+}
+textarea{
+    height:120px;
+    resize:none;
+}
+button{
+    background:#ff004c;
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+}
+button:hover{
+    background:#ff1a66;
+}
+#result{
+    margin-top:20px;
+    padding:15px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<h1>🚩 Red Flag Analyzer</h1>
+
+<select id="relationshipType">
+<option value="relationship">Romantic Relationship</option>
+<option value="friendship">Friendship</option>
+<option value="situationship">Situationship</option>
+</select>
+
+<textarea id="manualInput" placeholder="Describe the situation here..."></textarea>
+
+<button onclick="calculate()">Analyze</button>
+
+<div id="result"></div>
+
+</div>
+
+<script>
+
+const redFlags = [
+
+/* General */
+"controlling",
+"restricting freedom",
+"manipulative",
+"sexual intention",
+"backstabbing",
+"block cheyyum",
+"veruppu",
+"shalyam",
+"time illa",
+"busy aan",
+"overreact cheyyalle",
+
+/* Malayalam Emotional Manipulation */
+"njan angane thanne aanu",
+"nee over aakunnu",
+"athokke normal aanu",
+"trust ille",
+"friends mathram aanu",
+"phone nokkan pattilla",
+"busy aayirunnu",
+"scene undakkalle",
+"nee change aayi",
+"ellarum angane thanne",
+
+/* Toxic Behaviour */
+"chumma paranjatha",
+"ninne vendi alle cheythathu",
+"nee enne deserve cheyyilla",
+"mind cheyyanda",
+"njan poyal ariyum",
+"secret aayittu vekku",
+
+/* Friendship specific */
+"ohh athra valiya karyam onnum alla",
+"luck undayirunnu",
+"ninakku easy aanu",
+"avanode samsarikalle",
+"avalode samsarikalle",
+"njan illathe nee pokaruthu",
+"enne kettu mathi",
+"nee enne thanne choose cheyyanam",
+"enikku vendi ithra polum cheyyan pattilla"
+
+];
+
+function calculate(){
+
+let input=document.getElementById("manualInput").value.toLowerCase();
+let detected=false;
+
+redFlags.forEach(flag=>{
+    if(input.includes(flag)){
+        detected=true;
+    }
+});
+
+if(detected){
+    document.getElementById("result").innerHTML=
+    "<h2 style='color:red;'>🚩 RED FLAG DETECTED 🚩</h2>"+
+    "<p>Toxic or manipulative behaviour identified. Please reassess this relationship carefully.</p>";
+}
+else{
+    document.getElementById("result").innerHTML=
+    "<h2 style='color:lightgreen;'>No Major Red Flags Found</h2>"+
+    "<p>No serious toxic traits detected in the provided input.</p>";
+}
+
+}
+
+</script>
+
+</body>
+</html>
